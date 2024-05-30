@@ -1,15 +1,14 @@
+import hashlib
 import json
 import os
+import platform
+import re
 import sys
 
-import platform
-import hashlib
-import pkg_resources
 import psutil
-import re
 
 import launch
-from modules import paths_internal, timer, shared, extensions, errors
+from modules import errors, extensions, paths_internal, shared, timer
 
 checksum_token = "DontStealMyGamePlz__WINNERS_DONT_USE_DRUGS__DONT_COPY_THAT_FLOPPY"
 environment_whitelist = {
@@ -39,7 +38,7 @@ environment_whitelist = {
 
 def pretty_bytes(num, suffix="B"):
     for unit in ["", "K", "M", "G", "T", "P", "E", "Z", "Y"]:
-        if abs(num) < 1024 or unit == 'Y':
+        if abs(num) < 1024 or unit == "Y":
             return f"{num:.0f}{unit}{suffix}"
         num /= 1024
 
@@ -71,7 +70,6 @@ def check(x):
 
 def get_dict():
     ram = psutil.virtual_memory()
-
     res = {
         "Platform": platform.platform(),
         "Python": platform.python_version(),
@@ -90,14 +88,25 @@ def get_dict():
             "count physical": psutil.cpu_count(logical=False),
         },
         "RAM": {
-            x: pretty_bytes(getattr(ram, x, 0)) for x in ["total", "used", "free", "active", "inactive", "buffers", "cached", "shared"] if getattr(ram, x, 0) != 0
+            x: pretty_bytes(getattr(ram, x, 0))
+            for x in [
+                "total",
+                "used",
+                "free",
+                "active",
+                "inactive",
+                "buffers",
+                "cached",
+                "shared",
+            ]
+            if getattr(ram, x, 0) != 0
         },
         "Extensions": get_extensions(enabled=True),
         "Inactive extensions": get_extensions(enabled=False),
         "Environment": get_environment(),
         "Config": get_config(),
         "Startup": timer.startup_record,
-        "Packages": sorted([f"{pkg.key}=={pkg.version}" for pkg in pkg_resources.working_set]),
+        "Packages": sorted([]),
     }
 
     return res
@@ -123,15 +132,20 @@ def get_argv():
 
     return res
 
+
 re_newline = re.compile(r"\r*\n")
 
 
 def get_torch_sysinfo():
     try:
         import torch.utils.collect_env
+
         info = torch.utils.collect_env.get_env_info()._asdict()
 
-        return {k: re.split(re_newline, str(v)) if "\n" in str(v) else v for k, v in info.items()}
+        return {
+            k: re.split(re_newline, str(v)) if "\n" in str(v) else v
+            for k, v in info.items()
+        }
     except Exception as e:
         return str(e)
 
@@ -139,6 +153,7 @@ def get_torch_sysinfo():
 def get_extensions(*, enabled):
 
     try:
+
         def to_json(x: extensions.Extension):
             return {
                 "name": x.name,
@@ -148,7 +163,11 @@ def get_extensions(*, enabled):
                 "remote": x.remote,
             }
 
-        return [to_json(x) for x in extensions.extensions if not x.is_builtin and x.enabled == enabled]
+        return [
+            to_json(x)
+            for x in extensions.extensions
+            if not x.is_builtin and x.enabled == enabled
+        ]
     except Exception as e:
         return str(e)
 
