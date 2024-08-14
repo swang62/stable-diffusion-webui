@@ -5,6 +5,33 @@ __pycache__
 *.pth
 
 .venv
+.DS_Store
+/ESRGAN/*
+/SwinIR/*
+/repositories
+/venv
+/tmp
+/model.ckpt
+/models/**/*
+/GFPGANv1.3.pth
+/gfpgan/weights/*.pth
+/ui-config.json
+/outputs
+/config.json
+/log
+/webui.settings.bat
+/embeddings
+/styles.csv
+/params.txt
+/styles.csv.bak
+/webui-user.bat
+/webui-user.sh
+/interrogate
+/user.css
+/.idea
+notification.mp3
+/SwinIR
+/textual_inversion
 .vscode
 
 /.coverage*
@@ -43,3 +70,6 @@ __pycache__
 /webui-user.sh
 /webui.settings.bat
 notification.mp3
+/cache
+trace.json
+/sysinfo-????-??-??-??-??.json

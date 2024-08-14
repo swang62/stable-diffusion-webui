@@ -19,6 +19,7 @@ open-clip-torch
 librosa==0.10.2
 
 piexif
+protobuf==3.20.0
 psutil
 pytorch_lightning
 requests
